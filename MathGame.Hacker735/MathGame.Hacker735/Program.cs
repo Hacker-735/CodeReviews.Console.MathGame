@@ -1,9 +1,9 @@
 ﻿using static System.Net.Mime.MediaTypeNames;
 
 string? op;
-int gameCount = 0;
 
 List<string> games = ["", "", "", "", ""];
+string pastGames = "";
 
 Console.WriteLine("Welcome to Spencer's Math Quiz!");
 Console.ReadLine();
@@ -51,25 +51,14 @@ do
         }
     } while (op == null);
 
-    if (gameCount >= 5)
-    {
-        Console.WriteLine("That is your 5th game bye bye!");
-        Console.ReadLine();
-        Environment.Exit(0);
-    }
-
-    else if (op != "6" && op != "5")
+    if (op != "6" && op != "5")
     {
         MathGame();
-        gameCount++;
     }
 
     else if (op == "5")
     {
-        foreach (string game in games)
-        {
-            Console.WriteLine(game);
-        }
+        Console.WriteLine(pastGames);
         Console.ReadLine();
     }
 
@@ -77,56 +66,81 @@ do
 
 void MathGame()
 {
-    Random rnd1 = new Random();
-    Random rnd2 = new Random();
-
-    bool validCalculation = false;
-
-    decimal num1 = rnd1.Next(1, 101);
-    decimal num2 = rnd2.Next(1, 101);
-
-    decimal result = op switch
+    int gameCount = 0;
+    do
     {
-        "+" => num1 + num2,
-        "-" => num1 - num2,
-        "*" => num1 * num2,
-        "/" => num1 / num2,
-        _ => throw new Exception("Invalid operator")
-    };
+        Random rnd1 = new Random();
+        Random rnd2 = new Random();
 
+        bool validCalculation = false;
 
-    if (op == "/")
-    {
-        while (validCalculation == false)
+        decimal num1 = rnd1.Next(1, 101);
+        decimal num2 = rnd2.Next(1, 101);
+
+        decimal result = op switch
         {
-            if (num1 % num2 == 0)
-            {
-                result = num1 / num2;
+            "+" => num1 + num2,
+            "-" => num1 - num2,
+            "*" => num1 * num2,
+            "/" => num1 / num2,
+            _ => throw new Exception("Invalid operator")
+        };
 
-                Console.WriteLine("Whole number calculation found");
-                validCalculation = true;
-            }
-            else
+
+        if (op == "/")
+        {
+            while (validCalculation == false)
             {
-                num1 = rnd1.Next(1, 101);
-                num2 = rnd2.Next(1, 101);
+                if (num1 % num2 == 0)
+                {
+                    result = num1 / num2;
+
+                    Console.WriteLine("Whole number calculation found");
+                    validCalculation = true;
+                }
+                else
+                {
+                    num1 = rnd1.Next(1, 101);
+                    num2 = rnd2.Next(1, 101);
+                }
             }
         }
-    }
 
-    Console.WriteLine($"Guess the answer! of {num1}{op}{num2}");
-    games[gameCount] += ($"Guess the answer! of {num1}{op}{num2}\n\n");
+        Console.WriteLine($"Guess the answer! of {num1}{op}{num2}");
+        games[gameCount] += ($"Guess the answer! of {num1}{op}{num2}\n\n");
 
-    string? answer = Console.ReadLine();
+        string? answer = Console.ReadLine();
 
-    if (int.TryParse(answer, out int number) && number == result)
+        if (!int.TryParse(answer, out int number)) 
+        { 
+            Console.WriteLine($"Woah buddy slow your roll! That was not a number! You typed: {answer}");
+            games[gameCount] += $"Woah buddy slow your roll! That was not a number! You typed: {answer}\n\n"; 
+        }
+
+        else if (number == result)
+        {
+            Console.WriteLine($"You typed the number {number}...and the answer was {result} Correct!");
+            games[gameCount] += ($"You typed the number {number}...and the answer was {result} Correct!\n\n");
+        }
+        
+        else
+        {
+            Console.WriteLine($"u a bum... You typed the number {number}...and the answer was {result}...");
+            games[gameCount] += ($"u a bum... You typed the number {number}...and the answer was {result}...\n\n");
+        }
+
+        gameCount++;
+    } while (gameCount < 5);
+
+    if (gameCount >= 5)
     {
-        Console.WriteLine($"You typed the number {number}...and the answer was {result} Correct!");
-        games[gameCount] += ($"You typed the number {number}...and the answer was {result} Correct!\n\n");
-    }
-    else
-    {
-        Console.WriteLine($"u a bum... You typed the number {number}...and the answer was {result}...");
-        games[gameCount] += ($"u a bum... You typed the number {number}...and the answer was {result}...\n\n");
+        Console.WriteLine("Well, That's 5 games~!");
+        foreach (string game in games)
+        {
+            pastGames += (game);
+        }
+        pastGames += ($"(!*-ROUND END-*!)\n\n");
+        games = ["", "", "", "", ""];
+        Console.ReadLine();
     }
 }
